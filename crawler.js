@@ -1,5 +1,6 @@
 const express = require("express");
 const chromium = require("chrome-aws-lambda");
+const puppeteer = require("puppeteer-core"); 
 
 const app = express();
 
@@ -12,7 +13,7 @@ app.get("/crawl", async (req, res) => {
   let browser = null;
 
   try {
-    browser = await chromium.puppeteer.launch({
+    browser = await puppeteer.launch({ 
       args: chromium.args,
       executablePath: await chromium.executablePath,
       headless: chromium.headless,
@@ -28,6 +29,7 @@ app.get("/crawl", async (req, res) => {
 
     res.json({ content });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   } finally {
     if (browser !== null) await browser.close();
