@@ -1,14 +1,13 @@
 const express = require("express");
 const chromium = require("chrome-aws-lambda");
+
 const app = express();
 
 app.get("/crawl", async (req, res) => {
   const url = req.query.url;
   const selector = req.query.selector || "body";
 
-  if (!url) {
-    return res.status(400).json({ error: "Thiếu URL" });
-  }
+  if (!url) return res.status(400).json({ error: "Thiếu URL" });
 
   let browser = null;
 
@@ -31,13 +30,11 @@ app.get("/crawl", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   } finally {
-    if (browser !== null) {
-      await browser.close();
-    }
+    if (browser !== null) await browser.close();
   }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Crawler chạy tại http://localhost:${PORT}`);
+  console.log(`✅ Crawler đang chạy tại http://localhost:${PORT}`);
 });
