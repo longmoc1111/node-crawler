@@ -3,14 +3,11 @@
   "version": "1.0.0",
   "main": "crawler.js",
   "scripts": {
-    "start": "node crawler.js",
-    "postinstall": "npx puppeteer browsers install chrome"
-
+    "start": "node crawler.js"
   },
   "dependencies": {
     "express": "^5.1.0",
-    "puppeteer": "^24.11.2",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-core": "^24.0.0",
+    "chrome-aws-lambda": "^10.1.0"
   }
 }
