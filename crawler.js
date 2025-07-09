@@ -1,6 +1,5 @@
 const express = require("express");
-const puppeteer = require("puppeteer-core");
-const chromium = require("chrome-aws-lambda");
+const puppeteer = require("puppeteer");
 
 const app = express();
 
@@ -11,16 +10,9 @@ app.get("/crawl", async (req, res) => {
   if (!url) return res.status(400).json({ error: "Thiếu URL" });
 
   try {
-    const executablePath = await chromium.executablePath;
-
-    if (!executablePath) {
-      throw new Error("Không tìm thấy trình duyệt Chrome từ chrome-aws-lambda.");
-    }
-
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath,
-      headless: chromium.headless,
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     const page = await browser.newPage();
@@ -34,7 +26,6 @@ app.get("/crawl", async (req, res) => {
     await browser.close();
     res.json({ content });
   } catch (err) {
-    console.error("Crawler Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
