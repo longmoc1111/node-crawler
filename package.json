@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "crawler.js",
   "scripts": {
-    "start": "node crawler.js"
+    "start": "node crawler.js",
+    "postinstall": "npx puppeteer browsers install chrome"
+
   },
   "dependencies": {
     "express": "^5.1.0",
