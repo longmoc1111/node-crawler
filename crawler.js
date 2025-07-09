@@ -5,22 +5,24 @@ const app = express();
 
 app.get("/crawl", async (req, res) => {
   const url = req.query.url;
-  const selector = req.query.selector || 'body'; // ✅ fallback nếu thiếu
+  const selector = req.query.selector || 'body';
 
   if (!url) return res.status(400).json({ error: "Thiếu URL" });
 
   try {
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: puppeteer.executablePath(), 
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
 
     const content = await page.evaluate((sel) => {
       const el = document.querySelector(sel) || document.body;
       return el.innerText;
-    }, selector); // truyền selector vào evaluate
+    }, selector);
 
     await browser.close();
     res.json({ content });
