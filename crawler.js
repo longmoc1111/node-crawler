@@ -1,6 +1,6 @@
 const express = require("express");
-const chromium = require("chrome-aws-lambda");
 const puppeteer = require("puppeteer-core");
+const chromium = require("chrome-aws-lambda");
 
 const app = express();
 
@@ -35,5 +35,5 @@ app.get("/crawl", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Crawler is running on port ${PORT}`);
+  console.log(`Crawler đang chạy tại http://localhost:${PORT}`);
 });
