@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: crawler
+    env: node
+    buildCommand: |
+      npm install
+      npx puppeteer browsers install chrome
+    startCommand: node crawler.js
+    
