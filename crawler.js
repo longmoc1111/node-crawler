@@ -6,14 +6,16 @@ const app = express();
 
 app.get("/crawl", async (req, res) => {
   const url = req.query.url;
-  const selector = req.query.selector || 'body';
+  const selector = req.query.selector || "body";
 
-  if (!url) return res.status(400).json({ error: "Thiếu URL" });
+  if (!url) {
+    return res.status(400).json({ error: "Thiếu URL" });
+  }
 
   try {
     const browser = await puppeteer.launch({
       args: chromium.args,
-      executablePath: await chromium.executablePath,  
+      executablePath: await chromium.executablePath, 
       headless: chromium.headless,
     });
 
