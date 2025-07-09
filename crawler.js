@@ -1,19 +1,20 @@
 const express = require("express");
-const puppeteer = require("puppeteer-core");
 const chromium = require("chrome-aws-lambda");
-
 const app = express();
 
 app.get("/crawl", async (req, res) => {
   const url = req.query.url;
   const selector = req.query.selector || "body";
 
-  if (!url) return res.status(400).json({ error: "Thiếu URL" });
+  if (!url) {
+    return res.status(400).json({ error: "Thiếu URL" });
+  }
+
+  let browser = null;
 
   try {
-    const browser = await puppeteer.launch({
+    browser = await chromium.puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
       headless: chromium.headless,
     });
@@ -26,14 +27,17 @@ app.get("/crawl", async (req, res) => {
       return el.innerText;
     }, selector);
 
-    await browser.close();
     res.json({ content });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  } finally {
+    if (browser !== null) {
+      await browser.close();
+    }
   }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Crawler đang chạy tại http://localhost:${PORT}`);
+  console.log(`Crawler chạy tại http://localhost:${PORT}`);
 });
