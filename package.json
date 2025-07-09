@@ -1,22 +1,14 @@
 {
   "name": "crawler",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "crawler.js",
   "scripts": {
-    "dev": "concurrently \"php --file=../artisan serve\" \"node crawler.js\"",
-    "build": "node crawler.js"
+    "start": "node crawler.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "express": "^5.1.0",
     "puppeteer": "^24.11.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.0"
   }
 }
