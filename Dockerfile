@@ -1,4 +1,4 @@
-FROM docker pull ghcr.io/puppeteer/puppeteer:24.12.1
+FROM docker ghcr.io/puppeteer/puppeteer:24.12.1
 
 ENV PUPPETEER_SLIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
