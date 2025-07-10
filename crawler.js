@@ -13,22 +13,43 @@ const crawler = async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage", // Giảm sử dụng bộ nhớ
+      ],
       ...(isProduction ? {} : { executablePath: puppeteer.executablePath() }),
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+
+    //  Tắt tải ảnh, font, css
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const blocked = ["image", "stylesheet", "font"];
+      if (blocked.includes(req.resourceType())) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
+    await page.setViewport({ width: 800, height: 600 }); // Giảm độ phân giải
+
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 15000, // Giới hạn thời gian 
+    });
 
     const content = await page.evaluate((sel) => {
-      const el = document.querySelector(sel) || document.body;
-      return el.innerText;
+      const el = document.querySelector(sel);
+      return el ? el.innerText.slice(0, 15000) : "Không tìm thấy nội dung.";
     }, selector);
 
     await browser.close();
     res.json({ content });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `Lỗi: ${err.message}` });
   }
 };
 
