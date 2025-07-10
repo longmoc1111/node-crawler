@@ -1,11 +1,11 @@
 const express = require("express");
-const { scrapeLogic } = require("./scrapeLogic");
+const { crawler } = require("./crawler");
 const app = express();
 
 const PORT = process.env.PORT || 4000;
 
 app.get("/scrape", (req, res) => {
-  scrapeLogic(res);
+  crawler(res);
 });
 
 app.get("/", (req, res) => {
