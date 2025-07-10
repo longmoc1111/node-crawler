@@ -19,6 +19,7 @@
   "homepage": "https://github.com/longmoc1111/node-crawler#readme",
   "description": "",
   "dependencies": {
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "puppeteer": "^24.12.1"
   }
