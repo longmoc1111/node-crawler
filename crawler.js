@@ -1,50 +1,40 @@
 const puppeteer = require("puppeteer");
-require("dotenv").config();
-const crawler = async (res) => {
-  // Or import puppeteer from 'puppeteer-core';
 
-  // Launch the browser and open a new blank page
-    const browser = await puppeteer.launch({
-      args: [
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-        "--single-process",
-        "--no-zygote",
-      ],
-      executablePath:
-        process.env.NODE_ENV === "production"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
-    });
+const crawler = async (res) => {
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote"
+    ]
+  });
+
   try {
     const page = await browser.newPage();
-
-    // Navigate the page to a URL.
     await page.goto("https://developer.chrome.com/");
-
-    // Set screen size.
     await page.setViewport({ width: 1080, height: 1024 });
 
-    // Type into search box using accessible input name.
-    await page.locator("aria/Search").fill("automate beyond recorder");
+    const searchBox = await page.waitForSelector('input[aria-label="Search"]');
+    await searchBox.type("automate beyond recorder");
+    await page.keyboard.press("Enter");
 
-    // Wait and click on first result.
-    await page.locator(".devsite-result-item-link").click();
+    await page.waitForNavigation();
+    const link = await page.$(".devsite-result-item-link");
+    await link.click();
 
-    // Locate the full title with a unique string.
-    const textSelector = await page
-      .locator("text/Customize and automate")
-      .waitHandle();
-    const fullTitle = await textSelector?.evaluate((el) => el.textContent);
+    await page.waitForSelector("h1");
+    const title = await page.$eval("h1", el => el.textContent);
 
-    // Print the full title.
-    console.log('The title of this blog post is "%s".', fullTitle);
-    res.send(fullTitle);
-  } catch (e) {
-    console.error(e);
-    res.send("some wrong");
+    console.log(`Title: ${title}`);
+    res.send(title);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Crawl failed");
   } finally {
     await browser.close();
   }
 };
+
 module.exports = { crawler };
