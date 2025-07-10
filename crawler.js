@@ -12,7 +12,7 @@ const crawler = async (res) => {
         "--no-zygote"
     ],
     executablePath:process.env.NODE_ENV === "production" ?
-     process.env.PUPPETEER_EXCUTABLE_PATH
+     process.env.PUPPETEER_EXECUTABLE_PATH
      : puppeteer.executablePath(), 
   });
   try {
