@@ -1,42 +1,42 @@
-const express = require("express");
-const chromium = require("chrome-aws-lambda");
-const puppeteer = require("puppeteer-core"); 
+const puppeteer = require("puppeteer");
 
-const app = express();
+const crawler = async (res) => {
+// Or import puppeteer from 'puppeteer-core';
 
-app.get("/crawl", async (req, res) => {
-  const url = req.query.url;
-  const selector = req.query.selector || "body";
+// Launch the browser and open a new blank page
+const browser = await puppeteer.launch();
+try{
+const page = await browser.newPage();
 
-  if (!url) return res.status(400).json({ error: "Thiếu URL" });
+// Navigate the page to a URL.
+await page.goto('https://developer.chrome.com/');
 
-  let browser = null;
+// Set screen size.
+await page.setViewport({width: 1080, height: 1024});
 
-  try {
-    browser = await puppeteer.launch({ 
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
-    });
+// Type into search box using accessible input name.
+await page.locator('aria/Search').fill('automate beyond recorder');
 
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+// Wait and click on first result.
+await page.locator('.devsite-result-item-link').click();
 
-    const content = await page.evaluate((sel) => {
-      const el = document.querySelector(sel) || document.body;
-      return el.innerText;
-    }, selector);
+// Locate the full title with a unique string.
+const textSelector = await page
+  .locator('text/Customize and automate')
+  .waitHandle();
+const fullTitle = await textSelector?.evaluate(el => el.textContent);
 
-    res.json({ content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  } finally {
-    if (browser !== null) await browser.close();
-  }
-});
+// Print the full title.
+console.log('The title of this blog post is "%s".', fullTitle);
+res.send(fullTitle);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Crawler đang chạy tại http://localhost:${PORT}`);
-});
+}catch(e){
+    console.error(e);
+    res.send("some wrong");
+}finally{
+await browser.close();
+
+}
+
+}
+module.exports={crawler};
