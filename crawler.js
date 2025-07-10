@@ -1,49 +1,34 @@
 const puppeteer = require("puppeteer");
-require("dotenv").config();
 
-const crawler = async (res) => {
+const crawler = async (req, res) => {
+  const url = req.query.url;
+  const selector = req.query.selector || "body";
+
+  if (!url) {
+    return res.status(400).json({ error: "Thiếu URL" });
+  }
+
   const isProduction = process.env.NODE_ENV === "production";
 
-  const browser = await puppeteer.launch({
-    args: [
-      "--disable-setuid-sandbox",
-      "--no-sandbox",
-      "--single-process",
-      "--no-zygote",
-    ],
-    ...(isProduction ? {} : { executablePath: puppeteer.executablePath() }),
-  });
   try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      ...(isProduction ? {} : { executablePath: puppeteer.executablePath() }),
+    });
+
     const page = await browser.newPage();
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
 
-    await page.goto("https://developer.chrome.com/");
+    const content = await page.evaluate((sel) => {
+      const el = document.querySelector(sel) || document.body;
+      return el.innerText;
+    }, selector);
 
-    // Set screen size
-    await page.setViewport({ width: 1080, height: 1024 });
-
-    // Type into search box
-    await page.type(".search-box__input", "automate beyond recorder");
-
-    // Wait and click on first result
-    const searchResultSelector = ".search-box__link";
-    await page.waitForSelector(searchResultSelector);
-    await page.click(searchResultSelector);
-
-    // Locate the full title with a unique string
-    const textSelector = await page.waitForSelector(
-      "text/Customize and automate"
-    );
-    const fullTitle = await textSelector.evaluate((el) => el.textContent);
-
-    // Print the full title
-    const logStatement = `The title of this blog post is ${fullTitle}`;
-    console.log(logStatement);
-    res.send(logStatement);
-  } catch (e) {
-    console.error(e);
-    res.send(`Something went wrong while running Puppeteer: ${e}`);
-  } finally {
     await browser.close();
+    res.json({ content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
