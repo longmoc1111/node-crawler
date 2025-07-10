@@ -1,15 +1,15 @@
 const express = require("express");
-const { crawler } = require("./crawler");
+const { scrapeLogic } = require("./scrapeLogic");
 const app = express();
 
 const PORT = process.env.PORT || 4000;
 
 app.get("/scrape", (req, res) => {
-  crawler(res);
+  scrapeLogic(res);
 });
 
 app.get("/", (req, res) => {
-  res.send("Puppeteer Crawler Server is running!");
+  res.send("Render Puppeteer server is up and running!");
 });
 
 app.listen(PORT, () => {
