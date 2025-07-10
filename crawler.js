@@ -2,6 +2,8 @@ const puppeteer = require("puppeteer");
 require("dotenv").config();
 
 const crawler = async (res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   const browser = await puppeteer.launch({
     args: [
       "--disable-setuid-sandbox",
@@ -9,10 +11,7 @@ const crawler = async (res) => {
       "--single-process",
       "--no-zygote",
     ],
-    executablePath:
-      process.env.NODE_ENV === "production"
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : puppeteer.executablePath(),
+    ...(isProduction ? {} : { executablePath: puppeteer.executablePath() }),
   });
   try {
     const page = await browser.newPage();
